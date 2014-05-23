@@ -41,7 +41,12 @@
 {
 	_searchTerm = searchTerm;
     
-    _people = CFBridgingRelease(ABAddressBookCopyPeopleWithName(self.addressBook, (__bridge CFStringRef)(_searchTerm)));
+    if (_searchTerm.length) {
+        _people = CFBridgingRelease(ABAddressBookCopyPeopleWithName(self.addressBook, (__bridge CFStringRef)(_searchTerm)));
+    }
+    else {
+        _people = CFBridgingRelease(ABAddressBookCopyArrayOfAllPeople(self.addressBook));
+    }
 }
 
 - (id)init

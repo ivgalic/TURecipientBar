@@ -91,6 +91,7 @@
  @return A controller ready to be used.
  */
 - (id)initWithRecipientsBar:(TURecipientsBar *)recipientsBar contentsController:(UIViewController *)viewController;
+- (void)activateSearchBar;
 
 @end
 

@@ -65,6 +65,12 @@
     self.recipientsBar.animatedRecipientsInAndOut = YES;
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self.recipientDisplayController activateSearchBar];
+}
+
 
 #pragma mark - Actions
 
@@ -83,6 +89,11 @@
 	}
 }
 
+- (BOOL)recipientsDisplayControllerShouldEndSearch:(TURecipientsDisplayController *)controller
+{
+    return NO;
+}
+
 - (void)recipientsDisplayController:(TURecipientsDisplayController *)controller didLoadSearchResultsTableView:(UITableView *)tableView
 {
 	self.searchSource.tableView = tableView;
@@ -94,6 +105,7 @@
 	
 	return YES;
 }
+
 
 /*
  Uncomment to disable the search table view.

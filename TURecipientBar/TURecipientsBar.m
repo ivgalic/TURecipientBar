@@ -292,9 +292,9 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 		[self.superview layoutIfNeeded];
 		
 		[self _scrollToBottomAnimated:YES];
-		
+
+		self.scrollEnabled = YES;
 		if (_searching) {
-			self.scrollEnabled = NO;
 			_lineView.hidden = NO;
 			_lineView.backgroundColor = [UIColor colorWithWhite:0.557 alpha:1.000];
 			
@@ -302,13 +302,11 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 			self.layer.shadowOffset = CGSizeMake(0.0, 0.0);
 			self.layer.shadowOpacity = 0.5;
 			self.layer.shadowRadius = 5.0;
-			self.clipsToBounds = NO;
 		} else {
 			_lineView.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1.000];
 			
 			self.layer.shadowOpacity = 0.0;
 			self.layer.shadowRadius = 0.0;
-			self.clipsToBounds = YES;
 		}
 	}
 }
@@ -370,7 +368,6 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 		[self addConstraint:_heightConstraint];
 	}
 	self.clipsToBounds = YES;
-	
 	_lineView = [[UIView alloc] init];
 	_lineView.backgroundColor = [UIColor colorWithWhite:0.800 alpha:1.000];
 	[self addSubview:_lineView];
@@ -534,18 +531,13 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
         _lineView.frame = CGRectMake(0.0, self.contentOffset.y + self.bounds.size.height - 1.0, self.bounds.size.width, 1.0);
     }
     
-    if (_textField.isFirstResponder && !self.searching) {
+    if (_textField.isFirstResponder) {
 		self.heightConstraint.constant = self.contentSize.height;
 	} else {
 		self.heightConstraint.constant = TURecipientsLineHeight + 1.0;
 	}
     
-    if (_searching) {
-		[self _scrollToBottomAnimated:NO];
-	}
-    
-    
-	if (_textField.isFirstResponder && self.contentSize.height > self.frame.size.height && !_searching) {
+	if (_textField.isFirstResponder && self.contentSize.height > self.frame.size.height) {
 		self.scrollEnabled = YES;
 	} else {
 		self.scrollEnabled = NO;
@@ -558,7 +550,7 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 		[self _setNeedsRecipientLayout];
 	}
     
-    if (_textField.isFirstResponder && self.contentSize.height > self.frame.size.height && !_searching) {
+    if (_textField.isFirstResponder && self.contentSize.height > self.frame.size.height) {
 		self.scrollEnabled = YES;
 	} else {
 		self.scrollEnabled = NO;
@@ -631,9 +623,6 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 			
 			[self _updateRecipientTextField];
 			
-			if (_selectedRecipient != nil) {
-				[_textField becomeFirstResponder];
-			}
 		}
 		
 		for (UIButton *recipientView in _recipientViews) {
@@ -687,6 +676,7 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;
 {
+    [self _scrollToBottomAnimated:YES];
 	//we use a zero width space to detect the backspace
 	if ([[_textField.text substringWithRange:range] isEqual:TURecipientsPlaceholder]) {
 		//select the last recipient

@@ -61,6 +61,24 @@ static void *TURecipientsContext = &TURecipientsContext;
 
 - (void)_showTableView
 {
+    BOOL alreadyShown = (self.searchResultsTableView.superview == self.contentsController.view);
+    BOOL alreadySearching = self.recipientsBar.searching;
+    UITableView *tableView = self.searchResultsTableView;
+    void (^startSearching)() = ^{
+        [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
+            if (!alreadySearching) {
+                [self.recipientsBar setSearching:YES animated:NO];
+            }
+            [self.recipientsBar.superview bringSubviewToFront:self.recipientsBar];
+        } completion:^(BOOL finished) {
+            if (!alreadyShown && !alreadySearching) {
+                if ([self.delegate respondsToSelector:@selector(recipientsDisplayController:didShowSearchResultsTableView:)]) {
+                    [self.delegate recipientsDisplayController:self didShowSearchResultsTableView:tableView];
+                }
+            }
+        }];
+
+    };
 	if (!self.recipientsBar.searching) {
         if (_shouldBeginSearch) {
             UITableView *tableView = self.searchResultsTableView;
@@ -82,24 +100,15 @@ static void *TURecipientsContext = &TURecipientsContext;
                 tableView.alpha = 1.0;
             }];
             
-            
-            [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
-                [self.recipientsBar setSearching:YES animated:NO];
-                
-                [self.recipientsBar.superview bringSubviewToFront:self.recipientsBar];
-            } completion:^(BOOL finished) {
-                if ([self.delegate respondsToSelector:@selector(recipientsDisplayController:didShowSearchResultsTableView:)]) {
-                    [self.delegate recipientsDisplayController:self didShowSearchResultsTableView:tableView];
-                }
-            }];
+            startSearching();
+        
         } else {
-            [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
-                [self.recipientsBar setSearching:YES animated:NO];
-                
-                [self.recipientsBar.superview bringSubviewToFront:self.recipientsBar];
-            } completion:nil];
+            startSearching();
         }
-	}
+    }
+    else {
+        startSearching();
+    }
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -114,33 +123,6 @@ static void *TURecipientsContext = &TURecipientsContext;
 		[super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
 	}
 }
-
-- (void)_hideTableView
-{
-	if (self.recipientsBar.searching) {
-		UITableView *tableView = self.searchResultsTableView;
-		
-		if ([self.delegate respondsToSelector:@selector(recipientsDisplayController:willHideSearchResultsTableView:)]) {
-			[self.delegate recipientsDisplayController:self willHideSearchResultsTableView:tableView];
-		}
-		
-		[self.contentsController.view layoutIfNeeded];
-		
-		
-		[UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
-			[self.recipientsBar setSearching:NO animated:NO];
-			
-			tableView.alpha = 0.0;
-		} completion:^(BOOL finished) {
-			[tableView removeFromSuperview];
-			
-			if ([self.delegate respondsToSelector:@selector(recipientsDisplayController:didHideSearchResultsTableView:)]) {
-				[self.delegate recipientsDisplayController:self didHideSearchResultsTableView:tableView];
-			}
-		}];
-	}
-}
-
 
 #pragma mark - Initialization
 
@@ -186,6 +168,12 @@ static void *TURecipientsContext = &TURecipientsContext;
 	}
 	
 	return self;
+}
+
+- (void)activateSearchBar
+{
+    [self recipientsBarShouldBeginEditing:_recipientsBar];
+    [self _showTableView];
 }
 
 
@@ -329,10 +317,8 @@ static void *TURecipientsContext = &TURecipientsContext;
 	if ([self.delegate respondsToSelector:@selector(recipientsBar:textDidChange:)]) {
 		[(id<TURecipientsBarDelegate>)self.delegate recipientsBar:recipientsBar textDidChange:searchText];
 	}
-	
-	if (recipientsBar.text.length > 0) {
-		[self _showTableView];
-		
+    
+    void (^reloadIfNeeded)() = ^{
 		BOOL should = YES;
 		if ([self.delegate respondsToSelector:@selector(recipientsDisplayController:shouldReloadTableForSearchString:)]) {
 			should = [self.delegate recipientsDisplayController:self shouldReloadTableForSearchString:searchText];
@@ -341,9 +327,11 @@ static void *TURecipientsContext = &TURecipientsContext;
 		if (should) {
 			[_searchResultsTableView reloadData];
 		}
-	} else {
-		[self _hideTableView];
-	}
+    };
+    
+    [recipientsBar setSearching:YES animated:NO];
+    [self _showTableView];
+    reloadIfNeeded();	
 }
 
 - (BOOL)recipientsBar:(TURecipientsBar *)recipientsBar shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
