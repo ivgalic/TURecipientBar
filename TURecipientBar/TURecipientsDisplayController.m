@@ -174,6 +174,7 @@ static void *TURecipientsContext = &TURecipientsContext;
 {
     [self recipientsBarShouldBeginEditing:_recipientsBar];
     [self _showTableView];
+    [_recipientsBar becomeFirstResponder];
 }
 
 

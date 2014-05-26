@@ -295,16 +295,11 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 
 		self.scrollEnabled = YES;
 		if (_searching) {
-			_lineView.hidden = NO;
-			_lineView.backgroundColor = [UIColor colorWithWhite:0.557 alpha:1.000];
-			
 			self.layer.shadowColor = [UIColor blackColor].CGColor;
 			self.layer.shadowOffset = CGSizeMake(0.0, 0.0);
 			self.layer.shadowOpacity = 0.5;
 			self.layer.shadowRadius = 5.0;
 		} else {
-			_lineView.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1.000];
-			
 			self.layer.shadowOpacity = 0.0;
 			self.layer.shadowRadius = 0.0;
 		}
@@ -369,7 +364,7 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 	}
 	self.clipsToBounds = YES;
 	_lineView = [[UIView alloc] init];
-	_lineView.backgroundColor = [UIColor colorWithWhite:0.800 alpha:1.000];
+	_lineView.backgroundColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:0.9];
 	[self addSubview:_lineView];
 	
 	_toLabel = [[UILabel alloc] init];
@@ -479,7 +474,7 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
     
     if (_needsRecipientLayout) {
         CGSize toSize = _toLabel.intrinsicContentSize;
-        _toLabel.frame = CGRectMake(8.0,
+        _toLabel.frame = CGRectMake(10.0,
                                     21.0 - toSize.height / 2,
                                     toSize.width, toSize.height);
         
@@ -526,9 +521,9 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
     
     [_lineView.superview bringSubviewToFront:_lineView];
     if (self.searching) {
-        _lineView.frame = CGRectMake(0.0, self.contentSize.height - 1.0, self.bounds.size.width, 1.0);
+        _lineView.frame = CGRectMake(0.0, self.contentSize.height - 1.0, self.bounds.size.width, 0.5);
     } else {
-        _lineView.frame = CGRectMake(0.0, self.contentOffset.y + self.bounds.size.height - 1.0, self.bounds.size.width, 1.0);
+        _lineView.frame = CGRectMake(0.0, self.contentOffset.y + self.bounds.size.height - 1.0, self.bounds.size.width, 0.5);
     }
     
     if (_textField.isFirstResponder) {
@@ -579,6 +574,15 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 	[self _frameChanged];
 }
 
+- (void)setLineColor:(UIColor *)lineColor
+{
+    _lineView.backgroundColor = lineColor;
+}
+
+- (UIColor *)lineColor
+{
+    return _lineView.backgroundColor;
+}
 
 #pragma mark - Actions
 
