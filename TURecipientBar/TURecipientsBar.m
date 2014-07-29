@@ -69,20 +69,21 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 	recipientView.adjustsImageWhenHighlighted = NO;
 	recipientView.contentEdgeInsets = _recipientContentEdgeInsets;
     
-    
+
+    NSString *title = [NSString stringWithFormat:@"%@,", recipient.recipientTitle];
 	[recipientView setBackgroundImage:[self recipientBackgroundImageForState:UIControlStateNormal]
                              forState:UIControlStateNormal];
-    [recipientView setAttributedTitle:[[NSAttributedString alloc] initWithString:recipient.recipientTitle attributes:[self recipientTitleTextAttributesForState:UIControlStateNormal]]
+    [recipientView setAttributedTitle:[[NSAttributedString alloc] initWithString:title attributes:[self recipientTitleTextAttributesForState:UIControlStateNormal]]
                              forState:UIControlStateNormal];
     
 	[recipientView setBackgroundImage:[self recipientBackgroundImageForState:UIControlStateHighlighted]
 							 forState:UIControlStateHighlighted];
-    [recipientView setAttributedTitle:[[NSAttributedString alloc] initWithString:recipient.recipientTitle attributes:[self recipientTitleTextAttributesForState:UIControlStateHighlighted]]
+    [recipientView setAttributedTitle:[[NSAttributedString alloc] initWithString:title attributes:[self recipientTitleTextAttributesForState:UIControlStateHighlighted]]
                              forState:UIControlStateHighlighted];
     
 	[recipientView setBackgroundImage:[self recipientBackgroundImageForState:UIControlStateSelected]
 							 forState:UIControlStateSelected];
-    [recipientView setAttributedTitle:[[NSAttributedString alloc] initWithString:recipient.recipientTitle attributes:[self recipientTitleTextAttributesForState:UIControlStateSelected]]
+    [recipientView setAttributedTitle:[[NSAttributedString alloc] initWithString:title attributes:[self recipientTitleTextAttributesForState:UIControlStateSelected]]
                              forState:UIControlStateSelected];
     
     
@@ -166,31 +167,38 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 
 - (void)_updateSummary
 {
-    if (_recipients.count > 0) {
-        NSMutableString *summary = [[NSMutableString alloc] init];
-        
-        for (id<TURecipient>recipient in _recipients) {
-            [summary appendString:recipient.recipientTitle];
-            
-            if (recipient != [_recipients lastObject]) {
-                [summary appendString:@", "];
-            }
-        }
-        
-        _summaryLabel.textColor = [UIColor darkTextColor];
-        if (self.summaryTextAttributes == nil) {
-            _summaryLabel.text = summary;
-        } else {
-            _summaryLabel.attributedText = [[NSAttributedString alloc] initWithString:summary attributes:self.summaryTextAttributes];
-        }
-    } else {
+//    if (_recipients.count > 0) {
+//        NSMutableString *summary = [[NSMutableString alloc] init];
+//        
+//        for (id<TURecipient>recipient in _recipients) {
+//            [summary appendString:recipient.recipientTitle];
+//            
+//            if (recipient != [_recipients lastObject]) {
+//                [summary appendString:@","];
+//            }
+//        }
+//        
+//        _summaryLabel.textColor = [UIColor darkTextColor];
+//        if (self.summaryTextAttributes == nil) {
+//            _summaryLabel.text = summary;
+//        } else {
+//            _summaryLabel.attributedText = [[NSAttributedString alloc] initWithString:summary attributes:self.summaryTextAttributes];
+//        }
+//    } else {
         _summaryLabel.textColor = [UIColor lightGrayColor];
         if (self.placeholderTextAttributes == nil) {
             _summaryLabel.text = self.placeholder;
         } else {
             _summaryLabel.attributedText = [[NSAttributedString alloc] initWithString:self.placeholder attributes:self.placeholderTextAttributes];
         }
+//    }
+    if (_textField.text.length == 1 && _recipients.count == 0) {
+        _summaryLabel.alpha = 1.0;
     }
+    else {
+        _summaryLabel.alpha = 0.0;
+    }
+
 }
 
 - (void)setAutocapitalizationType:(UITextAutocapitalizationType)autocapitalizationType
@@ -391,7 +399,7 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 	
 	_summaryLabel = [[UILabel alloc] init];
     _summaryLabel.backgroundColor = [UIColor clearColor];
-	_summaryLabel.font = [UIFont systemFontOfSize:15.0];
+	_summaryLabel.font = [UIFont systemFontOfSize:17.0];
 	[self addSubview:_summaryLabel];
 	
 	
@@ -452,15 +460,15 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
     }
     
     if (lastView == _toLabel) {
-        recipientViewFrame.origin.x = CGRectGetMaxX(lastView.frame);
+        recipientViewFrame.origin.x = CGRectGetMaxX(lastView.frame) - 5;
     } else {
-        recipientViewFrame.origin.x = CGRectGetMaxX(lastView.frame) + 6.0;
+        recipientViewFrame.origin.x = CGRectGetMaxX(lastView.frame) + 1.0;
     }
     
     recipientViewFrame.origin.y = CGRectGetMidY(lastView.frame) - recipientViewFrame.size.height / 2.0;
     
-    if (CGRectGetMaxX(recipientViewFrame) > self.bounds.size.width - 6.0) {
-        recipientViewFrame.origin.x = 8.0;
+    if (CGRectGetMaxX(recipientViewFrame) > self.bounds.size.width - 1.0) {
+        recipientViewFrame.origin.x = 10.0;
         recipientViewFrame.origin.y += TURecipientsLineHeight - 8.0;
     }
     
@@ -480,7 +488,7 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
         
         
         CGRect summaryLabelFrame;
-        summaryLabelFrame.origin.x = CGRectGetMaxX(_toLabel.frame);
+        summaryLabelFrame.origin.x = CGRectGetMaxX(_toLabel.frame) - 5;
         summaryLabelFrame.size.height = ceil(_summaryLabel.font.lineHeight);
         summaryLabelFrame.origin.y = 21.0 - summaryLabelFrame.size.height / 2;
         summaryLabelFrame.size.width = self.bounds.size.width - summaryLabelFrame.origin.x - 12.0;
@@ -740,6 +748,7 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 	
 	UITextPosition *newEnd = [_textField positionFromPosition:_textField.endOfDocument inDirection:UITextLayoutDirectionLeft offset:offset];
 	_textField.selectedTextRange = [_textField textRangeFromPosition:newEnd toPosition:newEnd];
+    [self _updateSummary];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -770,7 +779,7 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
         _textField.alpha = 1.0;
         _addButton.alpha = 1.0;
         
-        _summaryLabel.alpha = 0.0;
+//        _summaryLabel.alpha = 0.0;
         
         
         [self setNeedsLayout];
@@ -804,7 +813,7 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 				_textField.alpha = 0.0;
 				_addButton.alpha = 0.0;
 				
-				_summaryLabel.alpha = 1.0;
+//				_summaryLabel.alpha = 1.0;
 				
 				[self setNeedsLayout];
 				[self.superview layoutIfNeeded];
