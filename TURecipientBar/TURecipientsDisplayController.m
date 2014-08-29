@@ -119,6 +119,11 @@ static void *TURecipientsContext = &TURecipientsContext;
                 [self.delegate recipientsDisplayController:self didRemoveRecipient:recipient];
             }
         }
+        if ([change[NSKeyValueChangeNewKey] isKindOfClass:[NSArray class]] && [self.delegate respondsToSelector:@selector(recipientsDisplayController:didAddRecipient:)]) {
+            for (id<TURecipient>recipient in change[NSKeyValueChangeNewKey]) {
+                [self.delegate recipientsDisplayController:self didAddRecipient:recipient];
+            }
+        }
 	} else {
 		[super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
 	}
@@ -164,7 +169,7 @@ static void *TURecipientsContext = &TURecipientsContext;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
         
-        [self addObserver:self forKeyPath:@"recipientsBar.recipients" options:NSKeyValueObservingOptionOld context:TURecipientsContext];
+        [self addObserver:self forKeyPath:@"recipientsBar.recipients" options:NSKeyValueObservingOptionOld|NSKeyValueObservingOptionNew context:TURecipientsContext];
 	}
 	
 	return self;
