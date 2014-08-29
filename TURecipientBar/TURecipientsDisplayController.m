@@ -89,7 +89,7 @@ static void *TURecipientsContext = &TURecipientsContext;
             
             [self.contentsController.view addSubview:tableView];
             [self.contentsController.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[tableView]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(tableView)]];
-            [self.contentsController.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_recipientsBar][tableView]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(_recipientsBar, tableView)]];
+            [self.contentsController.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_recipientsBar][tableView]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(_recipientsBar, tableView)]];
             
             [self.contentsController.view layoutIfNeeded];
             
