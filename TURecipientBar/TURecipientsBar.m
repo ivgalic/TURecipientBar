@@ -119,11 +119,11 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
     }
     
     
-    if (_textField.editing) {
+//    if (_textField.editing) {
         [self _scrollToBottomAnimated:YES];
-    } else {
-        recipientView.alpha = 0.0;
-    }
+//    } else {
+//        recipientView.alpha = 0.0;
+//    }
 	
 	[self _updateSummary];
 }
@@ -534,17 +534,22 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
         _lineView.frame = CGRectMake(0.0, self.contentOffset.y + self.bounds.size.height - 1.0, self.bounds.size.width, 0.5);
     }
     
-    if (_textField.isFirstResponder) {
+//    if (_textField.isFirstResponder) {
 		self.heightConstraint.constant = self.contentSize.height;
-	} else {
-		self.heightConstraint.constant = TURecipientsLineHeight + 1.0;
-	}
+//	} else {
+//		self.heightConstraint.constant = TURecipientsLineHeight + 1.0;
+//	}
     
-	if (_textField.isFirstResponder && self.contentSize.height > self.frame.size.height) {
-		self.scrollEnabled = YES;
-	} else {
-		self.scrollEnabled = NO;
-	}
+//	if (_textField.isFirstResponder && self.contentSize.height > self.frame.size.height) {
+//		self.scrollEnabled = YES;
+//	} else {
+//		self.scrollEnabled = NO;
+//	}
+    if (self.contentSize.height > self.frame.size.height) {
+        self.scrollEnabled = YES;
+    } else {
+        self.scrollEnabled = NO;
+    }
 }
 
 - (void)_frameChanged
@@ -553,17 +558,26 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 		[self _setNeedsRecipientLayout];
 	}
     
-    if (_textField.isFirstResponder && self.contentSize.height > self.frame.size.height) {
-		self.scrollEnabled = YES;
-	} else {
-		self.scrollEnabled = NO;
-	}
+//    if (_textField.isFirstResponder && self.contentSize.height > self.frame.size.height) {
+//		self.scrollEnabled = YES;
+//	} else {
+//		self.scrollEnabled = NO;
+//	}
+    if (self.contentSize.height > self.frame.size.height) {
+        self.scrollEnabled = YES;
+    } else {
+        self.scrollEnabled = NO;
+    }
 	
-	if (_textField.isFirstResponder
-        && _selectedRecipient == nil
-		&& (self.bounds.size.width != _lastKnownSize.width || self.bounds.size.height != _lastKnownSize.height)) {
-		[self _scrollToBottomAnimated:NO];
-	}
+//	if (_textField.isFirstResponder
+//        && _selectedRecipient == nil
+//		&& (self.bounds.size.width != _lastKnownSize.width || self.bounds.size.height != _lastKnownSize.height)) {
+//		[self _scrollToBottomAnimated:NO];
+//	}
+    if (_selectedRecipient == nil
+        && (self.bounds.size.width != _lastKnownSize.width || self.bounds.size.height != _lastKnownSize.height)) {
+        [self _scrollToBottomAnimated:NO];
+    }
 	
 	_lastKnownSize = self.bounds.size;
 }
@@ -803,28 +817,32 @@ void *TURecipientsSelectionContext = &TURecipientsSelectionContext;
 	if (should) {
         // we want the animation to execute after the text field has resigned first responder
         
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[UIView animateWithDuration:0.25 delay:0.0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
-				self.scrollEnabled = NO;
-				
-				for (UIView *recipientView in _recipientViews) {
-					recipientView.alpha = 0.0;
-				}
-				_textField.alpha = 0.0;
-				_addButton.alpha = 0.0;
-				
-//				_summaryLabel.alpha = 1.0;
-				
-				[self setNeedsLayout];
-				[self.superview layoutIfNeeded];
-				
-                [self setContentOffset:CGPointMake(0.0, 0.0) animated:YES];
-			} completion:^(BOOL finished) {
-				if ([self.recipientsBarDelegate respondsToSelector:@selector(recipientsBarTextDidEndEditing:)]) {
-					[self.recipientsBarDelegate recipientsBarTextDidEndEditing:self];
-				}
-			}];
-		});
+//		dispatch_async(dispatch_get_main_queue(), ^{
+//			[UIView animateWithDuration:0.25 delay:0.0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
+//				self.scrollEnabled = NO;
+//				
+////				for (UIView *recipientView in _recipientViews) {
+////					recipientView.alpha = 0.0;
+////				}
+//				_textField.alpha = 0.0;
+//				_addButton.alpha = 0.0;
+//				
+////				_summaryLabel.alpha = 1.0;
+//				
+//				[self setNeedsLayout];
+//				[self.superview layoutIfNeeded];
+//				
+//                [self setContentOffset:CGPointMake(0.0, 0.0) animated:YES];
+//			} completion:^(BOOL finished) {
+//				if ([self.recipientsBarDelegate respondsToSelector:@selector(recipientsBarTextDidEndEditing:)]) {
+//					[self.recipientsBarDelegate recipientsBarTextDidEndEditing:self];
+//				}
+//			}];
+//		});
+        
+        if ([self.recipientsBarDelegate respondsToSelector:@selector(recipientsBarTextDidEndEditing:)]) {
+            [self.recipientsBarDelegate recipientsBarTextDidEndEditing:self];
+        }
 	}
 	
 	return should;
